@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>What period is it?</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Calculate the period & week for a date" />
+    <meta name="author" content="Sainsbury's Supermarkets Ltd" />
+    <meta http-equiv="refresh" content="3600" />
+    <meta charset="UTF-8" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        font-size: 16px;
+        font-family: Arial, sans-serif;
+        background-color: #000000;
+        color: #d6d2c4;
+      }
+
+      body {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        text-align: center;
+      }
+
+      h1 {
+        font-size: 1rem;
+      }
+
+      #output {
+        font-size: 4rem;
+        margin-bottom: 2rem;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+
+      span,
+      a,
+      a:visited {
+        color: #e56db1;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <h1>What period is it?</h1>
+    </header>
+    <div>
+      <p id="output">...</p>
+      <form>
+        <label for="date">Try another date?</label>
+        <input type="date" id="date" name="date" />
+        <button type="submit">Go</button>
+      </form>
+    </div>
+    <footer>
+      <a href="https://github.com/sainsburys-tech/whatperiodisit" target="_blank">Source code on GitHub</a>
+    </footer>
+    <script>
+      const EPOCH_DAY_OFFSET = 129; // Days between 1970-01-01 (Date(0)) and the theoretical 1970 P1 W1
+      const MS_IN_DAY = 24 * 60 * 60 * 1000;
+      const PERIODS_IN_YEAR = 13;
+      const DAYS_IN_PERIOD = 28;
+      const DAYS_IN_YEAR = PERIODS_IN_YEAR * DAYS_IN_PERIOD;
+      const DAYS_IN_WEEK = 7;
+
+      function fromDate(date) {
+        const daysBetween = new Date(date).getTime() / MS_IN_DAY - EPOCH_DAY_OFFSET;
+        const days = Math.ceil(daysBetween) % DAYS_IN_YEAR; // Number of days into the financial year
+        const period = Math.floor(days / DAYS_IN_PERIOD) + 1;
+
+        return {
+          period,
+          week: Math.floor((days % DAYS_IN_PERIOD) / DAYS_IN_WEEK) + 1,
+        };
+      }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const date = new Date(urlParams.get("date") ?? Date.now());
+      const { period, week } = fromDate(date);
+
+      const dateString = date.toLocaleDateString("en-GB", { month: "long", day: "numeric" });
+      document.querySelector("#output").innerHTML = `${dateString} is <span>period ${period}, week ${week}</span>`;
+      document.querySelector("#date").value = date.toISOString().substr(0, 10);
+    </script>
+  </body>
+</html>
